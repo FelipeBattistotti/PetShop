@@ -25,6 +25,8 @@ Developed with: <strong>Node.js</strong>
 # Frontend
 Developed with: <strong>React</strong>
 
+<br/>
+
 Snapshots:
 
 <p align="center">
