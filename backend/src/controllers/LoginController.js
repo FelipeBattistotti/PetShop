@@ -13,7 +13,7 @@ module.exports = {
             .first();
 
         if (!user) {
-            return response.status(400).json({ error: 'Nenhum Usuário encontrado com esse Login' });
+            return response.status(400).json({ error: 'No User found with this Login!' });
         }
 
         return response.json(user);
