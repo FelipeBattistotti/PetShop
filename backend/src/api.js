@@ -2,7 +2,7 @@ const express = require('express');
 const { celebrate, Segments, Joi } = require('celebrate');
 
 const UserController = require('./controllers/UserController');
-const SessionController = require('./controllers/SessionController');
+const LoginController = require('./controllers/LoginController');
 const ProductController = require('./controllers/ProductController');
 
 const routes = express.Router();
@@ -20,7 +20,6 @@ routes.post('/user', celebrate({
         name: Joi.string().required(),
         email: Joi.string().required().email(),
         pwd: Joi.string().required(),
-        cpf: Joi.string().required(),
     })
 }), UserController.create);
 
@@ -30,9 +29,14 @@ routes.post('/user', celebrate({
 routes.delete('/user/:id', UserController.delete);
 
 /**
- * POST session
+ * POST login
  */
-routes.post('/session', SessionController.create);
+routes.post('/login', celebrate({
+    [Segments.BODY]: Joi.object().keys({
+        email: Joi.string().required().email(),
+        pwd: Joi.string().required(),
+    })
+}), LoginController.create);
 
 /**
  * GET product
@@ -40,13 +44,38 @@ routes.post('/session', SessionController.create);
 routes.get('/product', celebrate({
     [Segments.QUERY]: Joi.object().keys({
         page: Joi.number(),
+        name: Joi.string(),
+        description: Joi.string(),
+        category: Joi.string(),
     })
 }), ProductController.index);
 
 /**
  * POST product
  */
-routes.post('/product', ProductController.create);
+routes.post('/product', celebrate({
+    [Segments.BODY]: Joi.object().keys({
+        name: Joi.string().required(),
+        description: Joi.string().required(),
+        category: Joi.string().required(),
+        price: Joi.string().required(),
+        stock_quantity: Joi.string().required(),
+    })
+}), ProductController.create);
+
+/**
+ * PUT product
+ */
+routes.put('/product', celebrate({
+    [Segments.BODY]: Joi.object().keys({
+        id: Joi.string().required(),
+        name: Joi.string().required(),
+        description: Joi.string().required(),
+        category: Joi.string().required(),
+        price: Joi.string().required(),
+        stock_quantity: Joi.string().required(),
+    })
+}), ProductController.update);
 
 /**
  * DELETE product

@@ -2,56 +2,83 @@ const connection = require('../database/connection');
 
 module.exports = {
     async index(request, response) {
-        const { page = 1 } = request.query;
+        const { page = 1, name , description, category } = request.query;
         const user_id = request.headers.authorization;
 
-        const [count] = await connection('bill').where('bill.user_id', user_id).count();
+        const [count] = await connection('product').where('product.user_id', user_id).count();
 
-        const bill = await connection('bill')
-            .join('user', 'user.id', '=', 'bill.user_id')
-            .andWhere('bill.user_id', user_id)
+        const product = await connection('product')
+            .where('product.user_id', user_id)
+            .andWhere('product.name', 'like' , `%${name || ''}%`)
+            .andWhere('product.description', 'like' , `%${description || ''}%`)
+            .andWhere('product.category', 'like' , `%${category || ''}%`)
             .limit(5)
             .offset((page - 1) * 5)
-            .select([
-                'bill.*'
-            ]);
+            .select('*');
 
         response.header('X-Total-Count', count['count(*)']);
 
-        return response.json(bill);
+        return response.json(product);
     },
 
     async create(request, response) {
-        const { month, year, status, monthly_consumption, monthly_value, due_date } = request.body;
+        const { name, description, category, price, stock_quantity } = request.body;
         const user_id = request.headers.authorization;
 
-        const [id] = await connection('bill').insert({
-            month,
-            year,
-            status,
-            monthly_consumption,
-            monthly_value,
-            due_date,
+        const [id] = await connection('product').insert({
+            name,
+            description,
+            category,
+            price,
+            stock_quantity,
             user_id,
         });
 
         return response.json({ id });
     },
 
+    async update(request, response) {
+        const { id, name, description, category, price, stock_quantity } = request.body;
+        const user_id = request.headers.authorization;
+
+        const product = await connection('product')
+            .where('id', id)
+            .select('*')
+            .first();
+
+        if (product === undefined) {
+            return response.status(401).json({ error: 'Product not found!' });
+        }
+
+        if (product.user_id != user_id) {
+            return response.status(401).json({ error: 'Operation not allowed!' });
+        }
+
+        await connection('product').where('id', id).update({
+            name,
+            description,
+            category,
+            price,
+            stock_quantity,
+        });
+
+        return response.status(204).send();
+    },
+
     async delete(request, response) {
         const { id } = request.params;
         const user_id = request.headers.authorization;
 
-        const bill = await connection('bill')
+        const product = await connection('product')
             .where('id', id)
             .select('user_id')
             .first();
 
-        if (bill.user_id != user_id) {
-            return response.status(401).json({ error: 'Operação não permitida.' });
+        if (product.user_id != user_id) {
+            return response.status(401).json({ error: 'Operation not allowed!' });
         }
 
-        await connection('bill').where('id', id).delete();
+        await connection('product').where('id', id).delete();
 
         return response.status(204).send();
     }
