@@ -7,6 +7,8 @@ module.exports = {
     async index(request, response) {
         const user = await connection('user').select('*');
 
+        console.log('GET user - OK');
+
         return response.json(user);
     },
 
@@ -25,6 +27,8 @@ module.exports = {
             pwd,
         });
 
+        console.log('CREATE user - OK');
+
         return response.json({ id });
     },
 
@@ -32,6 +36,8 @@ module.exports = {
         const { id } = request.params;
 
         await connection('user').where('id', id).delete();
+
+        console.log('DELETE user - OK');
 
         return response.status(204).send();
     }

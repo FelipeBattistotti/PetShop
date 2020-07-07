@@ -18,6 +18,8 @@ module.exports = {
 
         response.header('X-Total-Count', count['count(*)']);
 
+        console.log('GET product - OK');
+
         return response.json(product);
     },
 
@@ -34,6 +36,8 @@ module.exports = {
             user_id,
         });
 
+        console.log('CREATE product - OK');
+
         return response.json({ id });
     },
 
@@ -47,10 +51,14 @@ module.exports = {
             .first();
 
         if (product === undefined) {
+            console.log('UPDATE product - NOK');
+            console.log('Product not found!');
             return response.status(401).json({ error: 'Product not found!' });
         }
 
         if (product.user_id != user_id) {
+            console.log('UPDATE product - NOK');
+            console.log('Operation not allowed!');
             return response.status(401).json({ error: 'Operation not allowed!' });
         }
 
@@ -61,6 +69,8 @@ module.exports = {
             price,
             stock_quantity,
         });
+
+        console.log('UPDATE product - OK');
 
         return response.status(204).send();
     },
@@ -75,10 +85,14 @@ module.exports = {
             .first();
 
         if (product.user_id != user_id) {
+            console.log('DELETE product - NOK');
+            console.log('Operation not allowed!');
             return response.status(401).json({ error: 'Operation not allowed!' });
         }
 
         await connection('product').where('id', id).delete();
+
+        console.log('DELETE product - OK');
 
         return response.status(204).send();
     }

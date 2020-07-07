@@ -13,9 +13,13 @@ module.exports = {
             .first();
 
         if (!user) {
+            console.log('LOGIN user - NOK');
+            console.log('No User found with this Login!');
             return response.status(400).json({ error: 'No User found with this Login!' });
         }
 
+        console.log('LOGIN user - OK');
+
         return response.json(user);
     }
-}
+};
