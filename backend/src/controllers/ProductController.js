@@ -47,7 +47,7 @@ module.exports = {
 
         const product = await connection('product')
             .where('id', id)
-            .select('*')
+            .select('user_id')
             .first();
 
         if (product === undefined) {
@@ -83,6 +83,12 @@ module.exports = {
             .where('id', id)
             .select('user_id')
             .first();
+
+        if (product === undefined) {
+            console.log('DELETE product - NOK');
+            console.log('Product not found!');
+            return response.status(401).json({ error: 'Product not found!' });
+        }
 
         if (product.user_id != user_id) {
             console.log('DELETE product - NOK');
